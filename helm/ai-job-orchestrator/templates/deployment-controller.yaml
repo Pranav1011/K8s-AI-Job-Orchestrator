@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ai-job-orchestrator.fullname" . }}-controller
+  labels:
+    app: ai-job-controller
+spec:
+  replicas: {{ .Values.replicaCount.controller }}
+  selector:
+    matchLabels:
+      app: ai-job-controller
+  template:
+    metadata:
+      labels:
+        app: ai-job-controller
+    spec:
+      containers:
+        - name: controller
+          image: "{{ .Values.image.controller.repository }}:{{ .Values.image.controller.tag }}"
+          resources:
+            {{- toYaml .Values.resources.controller | nindent 12 }}
+          env:
+            - name: METRICS_BIND_ADDRESS
+              value: ":8080"
+          ports:
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP

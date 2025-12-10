@@ -1,0 +1,53 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: computeclusters.aiplatform.example.com
+spec:
+  group: aiplatform.example.com
+  names:
+    kind: ComputeCluster
+    listKind: ComputeClusterList
+    plural: computeclusters
+    singular: computecluster
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              nodeSelector:
+                type: object
+                properties:
+                  accelerator:
+                    type: string
+              minNodes:
+                type: integer
+              maxNodes:
+                type: integer
+              autoscaling:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                  scaleUpThreshold:
+                    type: integer
+                  scaleDownThreshold:
+                    type: integer
+                  cooldownPeriod:
+                    type: string
+    additionalPrinterColumns:
+    - name: MinNodes
+      type: integer
+      jsonPath: .spec.minNodes
+    - name: MaxNodes
+      type: integer
+      jsonPath: .spec.maxNodes
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp

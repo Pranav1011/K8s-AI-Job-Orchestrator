@@ -1,0 +1,51 @@
+replicaCount:
+  controller: 2
+  api: 3
+  worker: 5
+
+image:
+  controller:
+    repository: ghcr.io/yourorg/ai-job-controller
+    tag: "v1.0.0"
+  api:
+    repository: ghcr.io/yourorg/ai-job-api
+    tag: "v1.0.0"
+  worker:
+    repository: ghcr.io/yourorg/inference-worker
+    tag: "v1.0.0"
+
+resources:
+  controller:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  api:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+  worker:
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+      nvidia.com/gpu: "1"
+
+postgresql:
+  host: "postgres.database.svc"
+  port: 5432
+  database: "aijobs"
+  
+redis:
+  host: "redis-master.cache.svc"
+  port: 6379
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilization: 70

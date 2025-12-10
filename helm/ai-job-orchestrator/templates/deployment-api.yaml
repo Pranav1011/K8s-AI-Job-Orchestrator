@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ai-job-orchestrator.fullname" . }}-api
+  labels:
+    app: ai-job-api
+spec:
+  replicas: {{ .Values.replicaCount.api }}
+  selector:
+    matchLabels:
+      app: ai-job-api
+  template:
+    metadata:
+      labels:
+        app: ai-job-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.api.repository }}:{{ .Values.image.api.tag }}"
+          resources:
+            {{- toYaml .Values.resources.api | nindent 12 }}
+          env:
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://postgres:password@{{ .Values.postgresql.host }}:{{ .Values.postgresql.port }}/{{ .Values.postgresql.database }}"
+            - name: REDIS_URL
+              value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}"
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP

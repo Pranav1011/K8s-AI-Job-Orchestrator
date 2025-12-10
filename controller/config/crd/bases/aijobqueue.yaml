@@ -1,0 +1,66 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: aijobqueues.aiplatform.example.com
+spec:
+  group: aiplatform.example.com
+  names:
+    kind: AIJobQueue
+    listKind: AIJobQueueList
+    plural: aijobqueues
+    singular: aijobqueue
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              maxConcurrentJobs:
+                type: integer
+              concurrencyLimits:
+                type: object
+                properties:
+                  maxConcurrentPerUser:
+                    type: integer
+                  maxConcurrentPerNamespace:
+                    type: integer
+              priorityClasses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    weight:
+                      type: integer
+              resourceQuota:
+                type: object
+                properties:
+                  maxGPUs:
+                    type: integer
+                  maxCPUs:
+                    type: integer
+                  maxMemory:
+                    type: string
+              scheduling:
+                type: object
+                properties:
+                  algorithm:
+                    type: string
+                    enum: [fair-share, priority, fifo]
+                  preemption:
+                    type: string
+                    enum: [enabled, disabled]
+    additionalPrinterColumns:
+    - name: Algorithm
+      type: string
+      jsonPath: .spec.scheduling.algorithm
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp

@@ -1,0 +1,40 @@
+groups:
+  - name: ai_job_alerts
+    rules:
+      - alert: HighJobQueueDepth
+        expr: aijob_queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High job queue depth"
+          description: "Job queue depth is {{ $value }} (threshold: 1000)"
+      
+      - alert: JobFailureRateHigh
+        expr: |
+          rate(aijob_status_total{status="failed"}[5m]) / 
+          rate(aijob_status_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High job failure rate"
+          description: "Job failure rate is {{ $value | humanizePercentage }}"
+      
+      - alert: InferenceLatencyHigh
+        expr: histogram_quantile(0.99, rate(inference_latency_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High inference latency"
+          description: "P99 inference latency is {{ $value }}s"
+      
+      - alert: GPUUtilizationLow
+        expr: avg(gpu_utilization_percent) < 30
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "Low GPU utilization"
+          description: "Average GPU utilization is {{ $value }}%"

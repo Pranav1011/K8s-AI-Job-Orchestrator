@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-job-api-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-job-api
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector: {} # Allow from all namespaces (e.g. Ingress Controller)
+    ports:
+    - protocol: TCP
+      port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: ai-job-api
+    - podSelector:
+        matchLabels:
+          app: inference-worker
+    ports:
+    - protocol: TCP
+      port: 6379
